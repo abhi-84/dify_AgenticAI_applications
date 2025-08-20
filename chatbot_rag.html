@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dify RAG Chatbot</title>
+<style>
+    body {
+        font-family: Georgia, Arial;
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #98FB98;
+    }
+    .container {
+        background: white;
+        padding: 30px;
+        margin: 50px auto;
+        border-radius: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 { text-align:center; color:#333; margin-bottom:30px; }
+    .form-group { margin-bottom:20px; }
+    label { display:block; margin-bottom:5px; font-weight:bold; color:#555; }
+    input, textarea {
+        width:100%;
+        padding:10px;
+        border:1px solid #ddd;
+        border-radius:5px;
+        font-size:14px;
+    }
+    textarea { height:80px; resize:vertical; }
+    button {
+        background:#007bff;
+        color:white;
+        padding:10px 20px;
+        border:none;
+        border-radius:5px;
+        cursor:pointer;
+        font-size:14px;
+    }
+    button:hover { background:#0056b3; }
+    button:disabled { background:#999; cursor:not-allowed; }
+    .setup { border-bottom:1px solid #eee; padding-bottom:20px; margin-bottom:20px; }
+    .chat-area { display:none; }
+    .messages {
+        height:300px;
+        overflow-y:auto;
+        border:1px solid #ddd;
+        padding:15px;
+        margin-bottom:15px;
+        background:#fafafa;
+    }
+    .message { margin-bottom:15px; padding:10px; border-radius:5px; }
+    .user { background:#007bff; color:white; text-align:right; }
+    .bot { background:#e9ecef; color:#333; }
+    .system { background:#fff3cd; color:#856404; font-style:italic; }
+    .error { background:#f8d7da; color:#721c24; }
+    .input-row { display:flex; gap:10px; }
+    .input-row input { flex:1; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Dify RAG Chatbot</h1>
+
+    <!-- Setup Form -->
+    <div class="setup" id="setup">
+        <div class="form-group">
+            <label for="apiUrl">API URL:</label>
+   <!--         <input type="text" id="apiUrl" value="http://localhost:5001/v1"> -->
+            <input type="text" id="apiUrl" value="https://api.dify.ai/v1"> 
+        </div>
+        <div class="form-group">
+            <label for="apiKey">API Key:</label>
+            <input type="password" id="apiKey">
+        </div>
+        <div class="form-group">
+            <label for="background">Background:</label>
+            <textarea id="background"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="instruction">Instructions:</label>
+            <textarea id="instruction"></textarea>
+        </div>
+        <button id="startChatBtn">Start Chat</button>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-area" id="chatArea">
+        <div class="messages" id="messages"></div>
+        <div class="input-row">
+            <input type="text" id="messageInput" placeholder="Type your message...">
+            <button id="sendBtn">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let apiUrl, apiKey, background, instruction, conversationId = '';
+
+function addMessage(type, content) {
+    const messages = document.getElementById('messages');
+    const el = document.createElement('div');
+    el.className = `message ${type}`;
+    el.textContent = content;
+    messages.appendChild(el);
+    messages.scrollTop = messages.scrollHeight;
+    return el; // return element for later removal if needed
+}
+
+function startChat() {
+    apiUrl = document.getElementById('apiUrl').value.trim();
+    apiKey = document.getElementById('apiKey').value.trim();
+    background = document.getElementById('background').value.trim();
+    instruction = document.getElementById('instruction').value.trim();
+
+    if (!apiUrl || !apiKey) {
+        alert('Please fill API URL and API Key');
+        return;
+    }
+
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('chatArea').style.display = 'block';
+    addMessage('system', 'Chat started. Ask your questions!');
+}
+
+async function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const message = input.value.trim();
+    if (!message) return;
+
+    input.value = '';
+    addMessage('user', message);
+
+    // Disable send button during request
+    sendBtn.disabled = true;
+
+    // Show "Processing..." message and store reference
+    const processingMsg = addMessage('system', 'Processing...');
+
+    try {
+        const inputs = {};
+        if (background) inputs.background = background;
+        if (instruction) inputs.instruction = instruction;
+
+        const response = await fetch(`${apiUrl}/chat-messages`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                inputs,
+                query: message,
+                response_mode: 'blocking',
+                conversation_id: conversationId,
+                user: 'user'
+            })
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errText}`);
+        }
+
+        const data = await response.json();
+        conversationId = data.conversation_id || conversationId;
+
+        processingMsg.remove();
+        addMessage('bot', data.answer || 'No response from bot.');
+    } catch (error) {
+        processingMsg.remove();
+        addMessage('error', 'Error: ' + error.message);
+    } finally {
+        sendBtn.disabled = false;
+    }
+}
+
+// Event listeners instead of inline HTML handlers
+document.getElementById('startChatBtn').addEventListener('click', startChat);
+document.getElementById('sendBtn').addEventListener('click', sendMessage);
+document.getElementById('messageInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+</script>
+</body>
+</html>

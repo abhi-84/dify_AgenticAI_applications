@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>My AI Chatbot - Powered by Dify</title>
+   <style>
+       * {
+           margin: 0;
+           padding: 0;
+           box-sizing: border-box;
+       }
+
+       body {
+           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           min-height: 100vh;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           padding: 20px;
+       }
+
+       .chatbot-container {
+           width: 100%;
+           max-width: 450px;
+           height: 600px;
+           background: white;
+           border-radius: 20px;
+           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+           display: flex;
+           flex-direction: column;
+           overflow: hidden;
+       }
+
+       .chatbot-header {
+           background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+           color: white;
+           padding: 20px;
+           text-align: center;
+       }
+
+       .chatbot-header h1 {
+           font-size: 24px;
+           margin-bottom: 5px;
+       }
+
+       .api-setup {
+           background: #f8fafc;
+           padding: 15px;
+           border-bottom: 1px solid #e5e7eb;
+           display: flex;
+           gap: 10px;
+           align-items: center;
+       }
+
+       .api-setup input {
+           flex: 1;
+           padding: 10px;
+           border: 2px solid #e5e7eb;
+           border-radius: 8px;
+           font-size: 14px;
+       }
+
+       .api-setup button {
+           background: #4f46e5;
+           color: white;
+           border: none;
+           padding: 10px 15px;
+           border-radius: 8px;
+           cursor: pointer;
+       }
+
+       .chat-messages {
+           flex: 1;
+           padding: 20px;
+           overflow-y: auto;
+           background: #f8fafc;
+           display: flex;
+           flex-direction: column;
+           gap: 15px;
+       }
+
+       .message {
+           max-width: 80%;
+           padding: 12px 16px;
+           border-radius: 18px;
+           font-size: 14px;
+           line-height: 1.5;
+       }
+
+       .message.user {
+           background: #4f46e5;
+           color: white;
+           align-self: flex-end;
+       }
+
+       .message.bot {
+           background: white;
+           color: #374151;
+           align-self: flex-start;
+           border: 1px solid #e5e7eb;
+       }
+
+       .chat-input {
+           padding: 20px;
+           background: white;
+           border-top: 1px solid #e5e7eb;
+           display: flex;
+           gap: 12px;
+       }
+
+       .chat-input textarea {
+           flex: 1;
+           padding: 12px 16px;
+           border: 2px solid #e5e7eb;
+           border-radius: 20px;
+           resize: none;
+           font-family: inherit;
+           min-height: 44px;
+       }
+
+       .send-button {
+           width: 44px;
+           height: 44px;
+           background: #4f46e5;
+           color: white;
+           border: none;
+           border-radius: 50%;
+           cursor: pointer;
+           font-size: 18px;
+       }
+
+       .error-message {
+           background: #fef2f2;
+           color: #dc2626;
+           padding: 12px;
+           border-radius: 8px;
+       }
+   </style>
+</head>
+<body>
+   <div class="chatbot-container">
+       <div class="chatbot-header">
+           <h1>🤖 Stock Analysis Agent</h1>
+       </div>
+
+       <div class="api-setup">
+           <input type="password" id="apiKey" placeholder="Enter API key" value="">
+           <button onclick="connect()">Connect</button>
+       </div>
+
+       <div class="chat-messages" id="messages"></div>
+
+       <div class="chat-input">
+           <textarea id="input" placeholder="Type message..." onkeydown="handleEnter(event)"></textarea>
+           <button class="send-button" onclick="send()">➤</button>
+       </div>
+   </div>
+
+   <script>
+       let apiKey = '';
+       let conversationId = '';
+
+       // Connect to Dify
+       async function connect() {
+           apiKey = document.getElementById('apiKey').value.trim();
+           if (!apiKey) return;
+
+           try {
+               const response = await callAPI('Hello');
+               addMessage('bot', response);
+               document.querySelector('.api-setup').style.display = 'none';
+           } catch (error) {
+               addMessage('error', 'Connection failed: ' + error.message);
+               console.error('Connection error:', error);
+           }
+       }
+
+       // Send message
+       async function send() {
+           const input = document.getElementById('input');
+           const message = input.value.trim();
+           if (!message || !apiKey) return;
+
+           input.value = '';
+           addMessage('user', message);
+
+           try {
+               const response = await callAPI(message);
+               addMessage('bot', response);
+           } catch (error) {
+               addMessage('error', 'Error: ' + error.message);
+           }
+       }
+
+       // Call Dify API (Chat format - from API reference)
+       async function callAPI(message) {
+           const response = await fetch('http://localhost:5001/v1/chat-messages', {
+               method: 'POST',
+               headers: {
+                   'Authorization': `Bearer ${apiKey}`,
+                   'Content-Type': 'application/json'
+               },
+               body: JSON.stringify({
+                   inputs: {},
+                   query: message,
+                   response_mode: 'streaming',
+                   conversation_id: conversationId || '',
+                   user: 'user-123',
+                 //  auto_generate_name: false
+               })
+           });
+
+	   
+           
+           if (!response.ok) {
+	       const errorText = await response.text();
+               throw new Error(`API Error ${response.status}: ${errorText}`);
+           }
+// streaming response
+	
+    	    const reader = response.body.getReader();
+    	    const decoder = new TextDecoder();
+    	    let answer = '';
+
+    	    try {
+        	while (true) {
+                	const { done, value } = await reader.read();
+            		if (done) break;
+
+            		const text = decoder.decode(value);
+            		const lines = text.split('\n');
+
+            		for (const line of lines) {
+                		if (line.startsWith('data: ') && !line.includes('[DONE]')) {
+                    			try {
+                        			const data = JSON.parse(line.slice(6));
+                        			if (data.answer) answer += data.answer;
+                        			if (data.conversation_id) conversationId = data.conversation_id;
+                    			} catch (e) {
+                        // Skip bad lines
+                    			}
+                		}
+            		}
+        	  }
+    	     } finally {
+        		reader.releaseLock();
+    	     }
+
+             return formatResponse(answer) || 'No response received';
+	}
+	
+	function formatResponse(text) {
+        	if (!text) return text;
+        	return text
+            		.replace(/\. /g, '.\n\n')  // Line break after sentences
+            		.replace(/([.!?])\s*([•·-])/g, '$1\n\n$2')  // Line break before bullets
+            		.replace(/(Key metrics|Recent news|Current price|Analysis|Summary):/gi, '\n\n**$1:**\n')  // Format headers
+            		.trim();
+    	}
+
+	
+       // Add message to chat
+       function addMessage(type, content) {
+           const div = document.createElement('div');
+           div.className = type === 'error' ? 'error-message' : `message ${type}`;
+           if (type == 'bot') {
+           	div.innerHTML = content
+           		.replace(/\n/g, '<br>') // Convert line breaks to HTML
+           		.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  // Convert **text** to bold
+           } else {
+           	div.textContent = content;
+           }
+           document.getElementById('messages').appendChild(div);
+           document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+       }
+
+       // Handle Enter key
+       function handleEnter(event) {
+           if (event.key === 'Enter' && !event.shiftKey) {
+               event.preventDefault();
+               send();
+           }
+       }
+   </script>
+</body>
+</html>
