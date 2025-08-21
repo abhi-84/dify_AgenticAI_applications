@@ -497,7 +497,7 @@ workflow:
       type: custom
       width: 244
     - data:
-        code: "import requests\n\nAPI_KEY = \"57698b8ee50566c96dae23773c7aaec3\"\n\
+        code: "import requests\n\nAPI_KEY = \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"\n\
           \ndef main(location: str) -> str:\n    base_url = \"http://api.openweathermap.org/data/2.5/weather\"\
           \n    params = {\n        \"q\": location,\n        \"appid\": API_KEY,\n\
           \        \"units\": \"metric\",\n    }\n    response = requests.get(base_url,\
