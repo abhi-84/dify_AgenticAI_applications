@@ -3,7 +3,7 @@
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>My Travel Planner Chatbot - Powered by Dify</title>
+   <title>Travel Planner Chatbot - Powered by Dify</title>
    <style>
        * {
            margin: 0;
@@ -43,6 +43,15 @@
        .chatbot-header h1 {
            font-size: 24px;
            margin-bottom: 5px;
+       }
+
+       .server-status {
+           background: #f0f9ff;
+           color: #0369a1;
+           padding: 8px 15px;
+           font-size: 12px;
+           text-align: center;
+           border-bottom: 1px solid #e0e7ff;
        }
 
        .api-setup {
@@ -100,6 +109,14 @@
            color: #374151;
            align-self: flex-start;
            border: 1px solid #e5e7eb;
+       }
+
+       .message.system {
+           background: #f3f4f6;
+           color: #6b7280;
+           align-self: center;
+           font-style: italic;
+           font-size: 12px;
        }
 
        .suggested-questions {
@@ -174,16 +191,28 @@
            padding: 12px;
            border-radius: 8px;
        }
+
+       .success-message {
+           background: #f0f9ff;
+           color: #0369a1;
+           padding: 12px;
+           border-radius: 8px;
+       }
    </style>
 </head>
 <body>
    <div class="chatbot-container">
        <div class="chatbot-header">
-           <h1>🤖 Travel Planner Chatbot</h1>
+           <h1>🛫 Travel Planner Chatbot</h1>
+           <div style="font-size: 12px; opacity: 0.8;">Powered by Dify AI</div>
+       </div>
+
+       <div class="server-status" id="serverStatus">
+           🔄 Checking server connection...
        </div>
 
        <div class="api-setup">
-           <input type="password" id="apiKey" placeholder="Enter API key" value="">
+           <input type="password" id="apiKey" placeholder="Enter Dify API key" value="">
            <button onclick="connect()">Connect</button>
        </div>
 
@@ -195,7 +224,7 @@
        </div>
 
        <div class="chat-input">
-           <textarea id="input" placeholder="Type message..." onkeydown="handleEnter(event)"></textarea>
+           <textarea id="input" placeholder="Ask about travel destinations..." onkeydown="handleEnter(event)"></textarea>
            <button class="send-button" onclick="send()">➤</button>
        </div>
    </div>
@@ -204,13 +233,52 @@
        let apiKey = '';
        let conversationId = '';
 
-       // Connect to Dify
+       // Check server status on page load
+       window.onload = async function() {
+           await checkServerStatus();
+           document.getElementById('input').focus();
+       };
+
+       // Check if Flask server and Dify are running
+       async function checkServerStatus() {
+           try {
+               const response = await fetch('/health');
+               const status = await response.json();
+               
+               const statusElement = document.getElementById('serverStatus');
+               if (status.dify_connection === 'connected') {
+                   statusElement.innerHTML = '✅ Flask server running • Dify connected';
+                   statusElement.style.background = '#f0f9ff';
+                   statusElement.style.color = '#0369a1';
+               } else {
+                   statusElement.innerHTML = '⚠️ Flask server running • Dify disconnected';
+                   statusElement.style.background = '#fef3c7';
+                   statusElement.style.color = '#92400e';
+               }
+           } catch (error) {
+               const statusElement = document.getElementById('serverStatus');
+               statusElement.innerHTML = '❌ Cannot connect to Flask server';
+               statusElement.style.background = '#fef2f2';
+               statusElement.style.color = '#dc2626';
+           }
+       }
+
+       // Connect to Dify through Flask proxy
        async function connect() {
            apiKey = document.getElementById('apiKey').value.trim();
-           if (!apiKey) return;
+           if (!apiKey) {
+               addMessage('error', 'Please enter your Dify API key');
+               return;
+           }
 
            try {
-               const response = await callAPI('Hello');
+               addMessage('system', 'Connecting to Dify...');
+               const response = await callAPI('Hello! I need help planning my travel.');
+               
+               // Remove connection message
+               const systemMsg = document.querySelector('.message.system');
+               if (systemMsg) systemMsg.remove();
+               
                addMessage('bot', response.answer);
                
                if (response.message_id) {
@@ -218,12 +286,18 @@
                }
                
                document.querySelector('.api-setup').style.display = 'none';
+               addMessage('success', '✅ Connected successfully to Dify!');
+               
            } catch (error) {
+               // Remove connection message
+               const systemMsg = document.querySelector('.message.system');
+               if (systemMsg) systemMsg.remove();
+               
                addMessage('error', 'Connection failed: ' + error.message);
            }
        }
 
-       // Send message
+       // Send message through Flask proxy
        async function send() {
            const input = document.getElementById('input');
            const message = input.value.trim();
@@ -246,9 +320,9 @@
            }
        }
 
-       // Call Dify API
+       // Call Dify API through Flask proxy
        async function callAPI(message) {
-           const response = await fetch('http://localhost:5001/v1/chat-messages', {
+           const response = await fetch('/api/chat', {
                method: 'POST',
                headers: {
                    'Authorization': `Bearer ${apiKey}`,
@@ -264,7 +338,8 @@
            });
 
            if (!response.ok) {
-               throw new Error(`API Error ${response.status}`);
+               const errorData = await response.json().catch(() => ({}));
+               throw new Error(errorData.message || `API Error ${response.status}`);
            }
 
            const data = await response.json();
@@ -273,12 +348,12 @@
            return data;
        }
 
-       // Get suggested questions from Dify API
+       // Get suggested questions through Flask proxy
        async function getSuggestedQuestions(messageId) {
            if (!messageId) return;
            
            try {
-               const response = await fetch(`http://localhost:5001/v1/messages/${messageId}/suggested?user=user-123`, {
+               const response = await fetch(`/api/suggestions/${messageId}?user=user-123`, {
                    method: 'GET',
                    headers: {
                        'Authorization': `Bearer ${apiKey}`,
@@ -329,7 +404,10 @@
        // Add message to chat
        function addMessage(type, content) {
            const div = document.createElement('div');
-           div.className = type === 'error' ? 'error-message' : `message ${type}`;
+           div.className = type === 'error' ? 'error-message' : 
+                          type === 'success' ? 'success-message' : 
+                          type === 'system' ? 'message system' : 
+                          `message ${type}`;
            div.textContent = content;
            document.getElementById('messages').appendChild(div);
            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
