@@ -1,4 +1,6 @@
 
+User openweather APIs to collect weather info of the travel location
+
 Dify chatflow screenshot
 
 <img width="1829" height="855" alt="Screenshot from 2025-08-21 09-34-18" src="https://github.com/user-attachments/assets/50f23531-7acd-4ac9-985a-c8362a98fd6d" />
