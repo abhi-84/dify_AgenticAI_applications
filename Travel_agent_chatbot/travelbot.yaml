@@ -1,0 +1,608 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: travelbot
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/openai:0.2.3@5a7f82fa86e28332ad51941d0b491c1e8a38ead539656442f7bf4c6129cd15fa
+kind: app
+version: 0.3.1
+workflow:
+  conversation_variables:
+  - description: ''
+    id: ef514004-af89-4998-89a4-3a9721a65329
+    name: activities
+    selector:
+    - conversation
+    - activities
+    value: []
+    value_type: array[string]
+  - description: ''
+    id: 9c5bb49f-5022-45d7-ad6d-d6132323cd8d
+    name: location
+    selector:
+    - conversation
+    - location
+    value: ''
+    value_type: string
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: true
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: parameter-extractor
+      id: 1754983073978-source-1754983186358-target
+      source: '1754983073978'
+      sourceHandle: source
+      target: '1754983186358'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: parameter-extractor
+        targetType: if-else
+      id: 1754983186358-source-1754983430524-target
+      source: '1754983186358'
+      sourceHandle: source
+      target: '1754983430524'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: parameter-extractor
+        targetType: if-else
+      id: 1754983186358-source-1754983436181-target
+      source: '1754983186358'
+      sourceHandle: source
+      target: '1754983436181'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: assigner
+      id: 1754983430524-true-1754983521611-target
+      source: '1754983430524'
+      sourceHandle: 'true'
+      target: '1754983521611'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: assigner
+      id: 1754983436181-true-1754983530003-target
+      source: '1754983436181'
+      sourceHandle: 'true'
+      target: '1754983530003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: assigner
+        targetType: if-else
+      id: 1754983521611-source-1754983900460-target
+      source: '1754983521611'
+      sourceHandle: source
+      target: '1754983900460'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: assigner
+        targetType: if-else
+      id: 1754983530003-source-1754983900460-target
+      source: '1754983530003'
+      sourceHandle: source
+      target: '1754983900460'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: if-else
+      id: 1754983436181-false-1754983900460-target
+      source: '1754983436181'
+      sourceHandle: 'false'
+      target: '1754983900460'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1754983900460-true-answer-target
+      source: '1754983900460'
+      sourceHandle: 'true'
+      target: answer
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1754983900460-d3ed547f-1be9-454c-900f-2949f366e6ef-1754984654607-target
+      source: '1754983900460'
+      sourceHandle: d3ed547f-1be9-454c-900f-2949f366e6ef
+      target: '1754984654607'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: code
+      id: 1754983900460-false-1754984750684-target
+      source: '1754983900460'
+      sourceHandle: 'false'
+      target: '1754984750684'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: llm
+      id: 1754984750684--1754984890765-target
+      source: '1754984750684'
+      sourceHandle: source
+      target: '1754984890765'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1754984890765--1754986225491-target
+      source: '1754984890765'
+      sourceHandle: source
+      target: '1754986225491'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: if-else
+      id: 1754983430524-false-1754983900460-target
+      source: '1754983430524'
+      sourceHandle: 'false'
+      target: '1754983900460'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: Start
+        type: start
+        variables: []
+      height: 53
+      id: '1754983073978'
+      position:
+        x: 10
+        y: 183
+      positionAbsolute:
+        x: 10
+        y: 183
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: Hey, where are you travelling today?
+        desc: ''
+        selected: false
+        title: Answer
+        type: answer
+        variables: []
+      height: 101
+      id: answer
+      position:
+        x: 1576
+        y: 149
+      positionAbsolute:
+        x: 1576
+        y: 149
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        instruction: 'If the user provides the location, extract it otherwise leave
+          the location empty
+
+          If the user provides the activities they want to do, extract them otherwise,
+          leave the activities empty'
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-3.5-turbo
+          provider: langgenius/openai/openai
+        parameters:
+        - description: user location
+          name: location
+          required: false
+          type: string
+        - description: user activities
+          name: activities
+          required: false
+          type: array[string]
+        query:
+        - sys
+        - query
+        reasoning_mode: prompt
+        selected: false
+        title: Parameter Extractor
+        type: parameter-extractor
+        variables: []
+        vision:
+          enabled: false
+      height: 89
+      id: '1754983186358'
+      position:
+        x: 293.0056915283203
+        y: 183
+      positionAbsolute:
+        x: 293.0056915283203
+        y: 183
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: not empty
+            id: ba583956-3789-4bd0-8ca8-ee7739b99137
+            value: ''
+            varType: string
+            variable_selector:
+            - '1754983186358'
+            - location
+          id: 'true'
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: IF/ELSE
+        type: if-else
+      height: 125
+      id: '1754983430524'
+      position:
+        x: 591.0056915283203
+        y: 79.00568389892578
+      positionAbsolute:
+        x: 591.0056915283203
+        y: 79.00568389892578
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: not empty
+            id: cbb99804-072b-45b4-b959-05d7bbc7ad7d
+            value: ''
+            varType: array[string]
+            variable_selector:
+            - '1754983186358'
+            - activities
+          id: 'true'
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: IF/ELSE 2
+        type: if-else
+      height: 125
+      id: '1754983436181'
+      position:
+        x: 591.0056915283203
+        y: 354.0056838989258
+      positionAbsolute:
+        x: 591.0056915283203
+        y: 354.0056838989258
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1754983186358'
+          - location
+          variable_selector:
+          - conversation
+          - location
+          write_mode: over-write
+        selected: false
+        title: Variable Assigner
+        type: assigner
+        version: '2'
+      height: 87
+      id: '1754983521611'
+      position:
+        x: 943.1052009929037
+        y: 66.96145747022197
+      positionAbsolute:
+        x: 943.1052009929037
+        y: 66.96145747022197
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        items:
+        - input_type: variable
+          operation: over-write
+          value:
+          - '1754983186358'
+          - activities
+          variable_selector:
+          - conversation
+          - activities
+          write_mode: over-write
+        selected: false
+        title: Variable Assigner 2
+        type: assigner
+        version: '2'
+      height: 87
+      id: '1754983530003'
+      position:
+        x: 938.5886160821399
+        y: 461.0656747742471
+      positionAbsolute:
+        x: 938.5886160821399
+        y: 461.0656747742471
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: empty
+            id: 08c6daaf-f343-4808-b8e5-ce4b5ac816b1
+            value: ''
+            varType: string
+            variable_selector:
+            - conversation
+            - location
+          id: 'true'
+          logical_operator: and
+        - case_id: d3ed547f-1be9-454c-900f-2949f366e6ef
+          conditions:
+          - comparison_operator: empty
+            id: 0d09f68a-58c7-4f28-ad78-3b939f1c9630
+            value: ''
+            varType: string
+            variable_selector:
+            - conversation
+            - activities
+          id: d3ed547f-1be9-454c-900f-2949f366e6ef
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: IF/ELSE 3
+        type: if-else
+      height: 173
+      id: '1754983900460'
+      position:
+        x: 1227.4006537601488
+        y: 203.57755184556942
+      positionAbsolute:
+        x: 1227.4006537601488
+        y: 203.57755184556942
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: Hey, what activities do you like at {{#conversation.location#}}?
+        desc: ''
+        selected: false
+        title: Answer 2
+        type: answer
+        variables: []
+      height: 121
+      id: '1754984654607'
+      position:
+        x: 1580.3332043488726
+        y: 299.0056838989258
+      positionAbsolute:
+        x: 1580.3332043488726
+        y: 299.0056838989258
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "import requests\n\nAPI_KEY = \"57698b8ee50566c96dae23773c7aaec3\"\n\
+          \ndef main(location: str) -> str:\n    base_url = \"http://api.openweathermap.org/data/2.5/weather\"\
+          \n    params = {\n        \"q\": location,\n        \"appid\": API_KEY,\n\
+          \        \"units\": \"metric\",\n    }\n    response = requests.get(base_url,\
+          \ params=params)\n    data = response.json()\n    if response.status_code\
+          \ == 200:\n        weather_desc = data[\"weather\"][0][\"description\"]\n\
+          \        temp = data[\"main\"][\"temp\"]\n        return {\n           \
+          \ \"result\": f\"{location}: {weather_desc}, Temperature: {temp}°C\"\n \
+          \       }\n    else:\n        return {\n            \"result\": \"Could\
+          \ not retrieve weather data\",\n        }"
+        code_language: python3
+        desc: ''
+        outputs:
+          result:
+            children: null
+            type: string
+        selected: false
+        title: Code
+        type: code
+        variables:
+        - value_selector:
+          - conversation
+          - location
+          value_type: string
+          variable: location
+      height: 53
+      id: '1754984750684'
+      position:
+        x: 1589.2362747875773
+        y: 494.1872974531825
+      positionAbsolute:
+        x: 1589.2362747875773
+        y: 494.1872974531825
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - sys
+          - query
+        desc: ''
+        model:
+          completion_params: {}
+          mode: chat
+          name: gpt-3.5-turbo
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: fe470c47-9acb-4831-b212-54b295422c09
+          role: system
+          text: 'Assume yourself as a travel agent who is supposed to create a travel
+            plan for the user travelling to a location {{#conversation.location#}}today.
+
+            User is interested in performing the following activities during travel
+            {{#conversation.activities#}}
+
+            While creating a travel plan keep consider the today''s location weather
+            {{#1754984750684.result#}}and create appropriate travel plans mentioning
+            the present {{#conversation.location#}}weather conditions. Some deviation
+            in activities as per the weather is acceptable
+
+            '
+        selected: false
+        structured_output_enabled: true
+        title: LLM
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 89
+      id: '1754984890765'
+      position:
+        x: 1893.2362747875773
+        y: 494.1872974531825
+      positionAbsolute:
+        x: 1893.2362747875773
+        y: 494.1872974531825
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#1754984890765.text#}}'
+        desc: ''
+        selected: false
+        title: Answer 3
+        type: answer
+        variables: []
+      height: 105
+      id: '1754986225491'
+      position:
+        x: 2197.2362747875773
+        y: 494.1872974531825
+      positionAbsolute:
+        x: 2197.2362747875773
+        y: 494.1872974531825
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: -545.480022368477
+      y: 11.380093087378327
+      zoom: 0.6642186650472135
