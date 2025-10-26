@@ -1,6 +1,5 @@
 
-User openweather APIs to collect weather info of the travel location
-Hosted front-end source on flask server, running locally, which will accept user input and send to dify backend using dify APIs, where actual processing happens using OpenWeather APIs to collect weather data and GPT3.5-Turbo to generate a travel plan as per the weather and respond. Response is sent back to the front-end for user consumption. Another Dify API is enabled for suggested messages, which is currently not accepted as new input in the chatflow, but can be considered towards project extension.
+This project is hosted locally on a Flask server, which will accept user input and send it to the Dify backend using Dify APIs, where actual processing happens to implement a conversational chatbot. OpenWeather APIs are also used to collect weather data of the destination location, and GPT3.5-Turbo is used to generate a travel plan as per the destination weather. The travel plan for the destination is sent back as a response to the front-end for user consumption. This project was completed within 5 days, as part of the Dify platform assessment, to build Agentic AI applications. Another Dify API is enabled for suggested messages (this is currently not accepted as new input in the chatflow, but can be considered towards project extension)
 
 Dify chatflow screenshot
 
